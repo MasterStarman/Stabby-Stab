@@ -21,6 +21,13 @@ canvas.height = window.innerHeight;
 c.fillStyle = "black";
 c.fillRect(0, 0, canvas.width, canvas.height);
 
+// Listen for window resize events
+window.addEventListener("resize", function () {
+	// Update canvas dimensions when the window is resized
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+});
+
 //Player sprites
 class Sprite {
 	constructor({ position, velocity }) {
