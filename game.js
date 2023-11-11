@@ -14,8 +14,8 @@ const keys = {
 //canvas defaults
 
 //canvas size
-canvas.width = 1024;
-canvas.height = 576;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
 //canvas fill color
 c.fillStyle = "black";
@@ -41,7 +41,7 @@ class Sprite {
 		this.position.y += this.velocity.y;
 		this.position.x += this.velocity.x;
 
-		//this causes the players to always move done until they hit the ground then stop
+		//this causes the players to always move down until they hit the ground then stop
 		if (this.position.y + this.height + this.velocity.y >= canvas.height) {
 			this.velocity.y = 0;
 		} else this.velocity.y += gravity;
@@ -151,7 +151,8 @@ window.addEventListener("keyup", (event) => {
 		case "a":
 			keys.a.pressed = false;
 			break;
-		/*case "w":
+		/*Not needed for jumping action
+		case "w":
 			keys.w.pressed = false;
 			break;*/
 
@@ -162,7 +163,8 @@ window.addEventListener("keyup", (event) => {
 		case "ArrowLeft":
 			keys.ArrowLeft.pressed = false;
 			break;
-		/*case "ArrowUp":
+		/*Not needed for jumping action
+		case "ArrowUp":
 			keys.ArrowUp.pressed = false;
 			break;*/
 	}
