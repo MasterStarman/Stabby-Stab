@@ -1,6 +1,40 @@
 const canvas = document.querySelector("canvas");
+
 const c = canvas.getContext("2d");
+
 const gravity = 0.75;
+
+//Load the background image
+const backgroundImage = new Image();
+backgroundImage.src = "./img/background/resized_background.png";
+
+const background = new Sprite({
+	position: {
+		x: 0,
+		y: 0,
+	},
+	velocity: {
+		x: 0,
+		y: 0,
+	},
+	imageSrc: "./img/background/resized_background.png",
+});
+
+const shop = new Sprite({
+	position: {
+		x: 600,
+		y: 258,
+	},
+	velocity: {
+		x: 0,
+		y: 0,
+	},
+	imageSrc: "./img/decorations/shop_anim.png",
+	scale: 2,
+	framesMax: 6,
+	framesHold: 10,
+});
+
 const keys = {
 	a: {
 		pressed: false,
@@ -9,8 +43,6 @@ const keys = {
 	ArrowLeft: { pressed: false },
 	ArrowRight: { pressed: false },
 };
-//let lastKey;
-
 //canvas defaults
 
 //canvas size
@@ -28,66 +60,8 @@ window.addEventListener("resize", function () {
 	canvas.height = window.innerHeight;
 });
 
-//Player sprites
-class Sprite {
-	constructor({ position, velocity, color = "red", offset }) {
-		this.position = position;
-		this.velocity = velocity;
-		this.width = 50;
-		this.height = 150;
-		this.lastKey;
-		this.attackBox = {
-			position: { x: this.position.x, y: this.position.y },
-			width: 100,
-			height: 50,
-			offset,
-		};
-		this.color = color;
-		this.isAttacking = false;
-		this.health = 100;
-	}
-
-	//Sprite Draw
-	draw() {
-		c.fillStyle = this.color;
-		c.fillRect(this.position.x, this.position.y, this.width, this.height);
-
-		//Attack box draw
-		if (this.isAttacking) {
-			c.fillStyle = "green";
-			c.fillRect(
-				this.attackBox.position.x,
-				this.attackBox.position.y,
-				this.attackBox.width,
-				this.attackBox.height
-			);
-		}
-	}
-
-	update() {
-		this.draw();
-		this.attackBox.position.x = this.position.x + this.attackBox.offset.x;
-		this.attackBox.position.y = this.position.y;
-
-		this.position.y += this.velocity.y;
-		this.position.x += this.velocity.x;
-
-		//this causes the players to always move down until they hit the ground then stop
-		if (this.position.y + this.height + this.velocity.y >= canvas.height) {
-			this.velocity.y = 0;
-		} else this.velocity.y += gravity;
-	}
-
-	attack() {
-		this.isAttacking = true;
-		setTimeout(() => {
-			this.isAttacking = false;
-		}, 100);
-	}
-}
-
 //player1
-const player1 = new Sprite({
+const player1 = new Fighter({
 	position: {
 		//starting position
 		x: 15,
@@ -101,10 +75,36 @@ const player1 = new Sprite({
 		x: 0,
 		y: 0,
 	},
+	imageSrc: "./img/character/Hero Knight/Sprites/idle.png",
+	framesMax: 11, //This is how many pictures there are in the sprite sheet
+	scale: 1.75,
+	offset: {
+		x: 140,
+		y: 52,
+	},
+	framesHold: 3,
+	sprites: {
+		idle: {
+			imageSrc: "./img/character/Hero Knight/Sprites/idle.png",
+			framesMax: 11, //This is how many pictures there are in the sprite sheet
+		},
+		run: {
+			imageSrc: "./img/character/Hero Knight/Sprites/run.png",
+			framesMax: 8, //This is how many pictures there are in the sprite sheet
+		},
+		jump: {
+			imageSrc: "./img/character/Hero Knight/Sprites/jump.png",
+			framesMax: 3, //This is how many pictures there are in the sprite sheet
+		},
+		fall: {
+			imageSrc: "./img/character/Hero Knight/Sprites/fall.png",
+			framesMax: 3, //This is how many pictures there are in the sprite sheet
+		},
+	},
 });
 
 //Player2
-const player2 = new Sprite({
+const player2 = new Fighter({
 	position: {
 		//starting position
 		x: 500,
@@ -119,50 +119,19 @@ const player2 = new Sprite({
 		x: -50,
 		y: 0,
 	},
+	imageSrc: "./img/character/Hero Knight/Sprites/idle.png",
+	framesMax: 11, //This is how many pictures there are in the sprite sheet
+	scale: 1.75,
+	offset: {
+		x: -140,
+		y: 52,
+	},
+	framesHold: 3,
 });
 
-function rectangularCollision({ rectangle1, rectangle2 }) {
-	return (
-		rectangle1.attackBox.position.x + rectangle1.attackBox.width >=
-			rectangle2.position.x &&
-		rectangle1.attackBox.position.x <=
-			rectangle2.position.x + rectangle2.width &&
-		rectangle1.attackBox.position.y + rectangle1.attackBox.height >=
-			rectangle2.position.y &&
-		rectangle1.attackBox.position.y <=
-			rectangle2.position.y + rectangle2.height
-	);
-}
-
-//function for determining the winner based off of health
-function matchResult({ player1, player2, timerId }) {
-	clearTimeout(timerId);
-	document.querySelector("#matchResult").style.display = "flex";
-	if (player1.health === player2.health) {
-		document.querySelector("#matchResult").innerHTML = "Tie";
-	}
-	if (player1.health > player2.health) {
-		document.querySelector("#matchResult").innerHTML = "Player 1 Wins";
-	}
-	if (player1.health < player2.health) {
-		document.querySelector("#matchResult").innerHTML = "Player 2 Wins";
-	}
-}
-
-//Timer
-let timer = 10;
-let timerId;
-function decreaseTimer() {
-	if (timer > 0) {
-		timerId = setTimeout(decreaseTimer, 1000);
-		timer--;
-		document.querySelector("#timer").innerHTML = timer;
-	}
-
-	//Match Results after the timer has elapsed
-	if (timer === 0) {
-		matchResult({ player1, player2, timerId });
-	}
+//Function to draw the background image with the updated size
+function drawBackground() {
+	c.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 }
 
 //Infinite animate loop
@@ -172,16 +141,31 @@ function animate() {
 	c.fillStyle = "black";
 	//makes the canvas reset to clear to give the look of movement
 	c.fillRect(0, 0, canvas.width, canvas.height);
+	drawBackground();
+	background.update();
+	shop.update();
 	//runs player animation
 	player1.update();
 	player2.update();
 
 	//player 1 movement
 	player1.velocity.x = 0;
+	//idle animation
+
+	//left and right move animation
 	if (keys.a.pressed && player1.lastKey === "a") {
 		player1.velocity.x = -10;
+		player1.switchSprite("run");
 	} else if (keys.d.pressed && player1.lastKey === "d") {
 		player1.velocity.x = 10;
+		player1.switchSprite("run");
+	} else player1.switchSprite("idle");
+
+	//jump animation
+	if (player1.velocity.y < 0) {
+		player1.switchSprite("jump");
+	} else if (player1.velocity.y > 0) {
+		player1.switchSprite("fall");
 	}
 
 	//player 2 movement
